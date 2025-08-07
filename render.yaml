@@ -1,11 +1,7 @@
 services:
   - type: web
-    name: auto-downloader-bot
-    env: python
+    name: savecore-bot
+    env: docker
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
-    region: oregon
-build:
-  environment: python
-  pythonVersion: 3.10
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
