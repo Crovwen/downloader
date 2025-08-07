@@ -4,7 +4,7 @@ import re
 import os
 from handlers.link_handler import handle_link
 
-BOT_TOKEN = "توکن_بات_تو_اینجا_بذار"
+BOT_TOKEN = "8431602847:AAGPz5QpBiwfVdi-2XPKif9abqxl_Uq7Cow"
 
 app = Client("auto_downloader_bot", bot_token=BOT_TOKEN)
 
