@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: savecore-bot
+    name: downloader
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
