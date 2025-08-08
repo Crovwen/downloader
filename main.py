@@ -1,7 +1,7 @@
 import asyncio
 import threading
 from flask import Flask
-from pyrogram import Client, filters
+from pyrogram import Client, filters, idle
 from pyrogram.types import Message
 import re
 import os
@@ -46,7 +46,9 @@ def home():
 def run_bot():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    app_bot.run()
+    loop.run_until_complete(app_bot.start())  # bot start
+    loop.run_until_complete(idle())           # keep alive
+    loop.run_until_complete(app_bot.stop())   # bot stop when done
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
