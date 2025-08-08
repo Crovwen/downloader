@@ -1,19 +1,32 @@
+from flask import Flask
+import threading
+import os
+
+# ----- بخش Flask برای فیک وب‌سرویس -----
+app_flask = Flask(__name__)
+
+@app_flask.route('/')
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 5000))
+    app_flask.run(host="0.0.0.0", port=port)
+
+# اجرای Flask در ترد جدا
+threading.Thread(target=run_flask).start()
+
+# ----- اینجا کد اصلی بات -----
 from pyrogram import Client, filters
 from pyrogram.types import Message
 import re
-import os
 from handlers.link_handler import handle_link
 
 API_ID = 20292726
 API_HASH = "86902140c904c0de4a5813813c9a2409"
 BOT_TOKEN = "8431602847:AAGPz5QpBiwfVdi-2XPKif9abqxl_Uq7Cow"
 
-app = Client(
-    "auto_downloader_bot",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
+app = Client("auto_downloader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 @app.on_message(filters.private | filters.group & filters.text)
 async def on_message(client: Client, message: Message):
@@ -35,4 +48,3 @@ async def start_handler(client: Client, message: Message):
 
 if __name__ == "__main__":
     app.run()
-    
