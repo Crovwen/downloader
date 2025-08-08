@@ -9,7 +9,7 @@ BOT_TOKEN = "8431602847:AAGPz5QpBiwfVdi-2XPKif9abqxl_Uq7Cow"
 app = Client("auto_downloader_bot", bot_token=BOT_TOKEN)
 
 
-@app.on_message(filters.private | filters.group & filters.text)
+@app.on_message((filters.private | filters.group) & filters.text)
 async def on_message(client: Client, message: Message):
     urls = re.findall(r'(https?://[^\s]+)', message.text or "")
     if not urls:
