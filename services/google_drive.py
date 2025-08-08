@@ -3,7 +3,7 @@ import os
 import tempfile
 import requests
 
-async def download_google_gdrive(url: str) -> str | None:
+async def download_google_drive(url: str) -> str | None:
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, lambda: download(url))
 
