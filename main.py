@@ -1,10 +1,10 @@
 import asyncio
 import threading
+import os
 from flask import Flask
-from pyrogram import Client, filters, idle
+from pyrogram import Client, filters
 from pyrogram.types import Message
 import re
-import os
 from handlers.link_handler import handle_link
 
 API_ID = 20292726
@@ -18,6 +18,7 @@ app_bot = Client(
     bot_token=BOT_TOKEN
 )
 
+# --- Bot Handlers ---
 @app_bot.on_message(filters.private | (filters.group & filters.text))
 async def on_message(client: Client, message: Message):
     urls = re.findall(r'(https?://[^\s]+)', message.text or "")
@@ -36,21 +37,24 @@ async def start_handler(client: Client, message: Message):
         "با من همراه باش 🚀"
     )
 
-# Flask app
+# --- Flask App ---
 app_web = Flask(__name__)
 
 @app_web.route("/")
 def home():
     return "Bot is running!", 200
 
-def run_bot():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(app_bot.start())  # bot start
-    loop.run_until_complete(idle())           # keep alive
-    loop.run_until_complete(app_bot.stop())   # bot stop when done
-
-if __name__ == "__main__":
-    threading.Thread(target=run_bot).start()
+# --- Run Flask in a separate thread ---
+def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app_web.run(host="0.0.0.0", port=port)
+
+# --- Async main to start bot ---
+async def main():
+    await app_bot.start()
+    print("Bot started ✅")
+    await asyncio.Event().wait()  # Keep running forever
+
+if __name__ == "__main__":
+    threading.Thread(target=run_flask, daemon=True).start()
+    asyncio.run(main())
