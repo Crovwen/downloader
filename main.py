@@ -1,47 +1,25 @@
 import os
-import asyncio
+import threading
 from flask import Flask
-from threading import Thread
-from pyrogram import Client, filters
+from bot import run_bot  # اینو از bot.py می‌گیریم
 from dotenv import load_dotenv
 
-# Load env
+# لود کردن متغیرها از .env
 load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-API_ID = int(os.getenv("API_ID"))
-API_HASH = os.getenv("API_HASH")
 
-# Flask app
+# Flask برای باز نگه داشتن پورت در Render
 app = Flask(__name__)
 
-@app.route('/')
+@app.route("/")
 def home():
     return "Bot is running!"
 
-# Pyrogram client
-bot = Client(
-    "my_bot",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
-
-@bot.on_message(filters.command("start") & filters.private)
-async def start_handler(client, message):
-    await message.reply_text("✅ Bot is alive and working!")
-
-# Function to run the bot in asyncio loop
-async def run_bot():
-    await bot.start()
-    print("Bot started...")
-    await asyncio.Event().wait()  # Keep running
-
-def start_bot():
-    asyncio.run(run_bot())
-
 if __name__ == "__main__":
-    # Start bot in separate thread
-    Thread(target=start_bot, daemon=True).start()
+    # استارت بات در یک Thread جدا
+    bot_thread = threading.Thread(target=run_bot)
+    bot_thread.start()
 
-    # Start Flask server
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
+    # ران کردن Flask
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+    
