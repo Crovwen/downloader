@@ -1,4 +1,5 @@
 import threading
+import asyncio
 from flask import Flask
 from pyrogram import Client, filters, idle
 
@@ -15,6 +16,9 @@ def home():
     return "Bot is alive!"
 
 def run_bot():
+    # ساخت event loop برای ترد جدید
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
     bot = Client(
         "my_downloader_bot",
         api_id=API_ID,
