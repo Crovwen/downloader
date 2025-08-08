@@ -1,44 +1,66 @@
+#!/usr/bin/env python3
+# main.py
+import os
+import sys
+import time
 import threading
-import asyncio
-from flask import Flask
-from pyrogram import Client, filters, idle
+import subprocess
+from flask import Flask, jsonify
 
-# ======== تنظیمات Pyrogram ========
-API_ID = 20292726
-API_HASH = "86902140c904c0de4a5813813c9a2409"
-BOT_TOKEN = "8431602847:AAGPz5QpBiwfVdi-2XPKif9abqxl_Uq7Cow"
+ROOT = os.path.dirname(__file__)
+BOT_SCRIPT = os.path.join(ROOT, "bot_runner.py")
 
-# Flask برای نگه داشتن سرویس روی Render
 app = Flask(__name__)
 
-@app.route('/')
+@app.route("/")
 def home():
-    return "Bot is alive!"
+    return "✅ Auto-downloader bot service is alive!", 200
 
-def run_bot():
-    # ساخت event loop برای ترد جدید
-    asyncio.set_event_loop(asyncio.new_event_loop())
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"}), 200
 
-    bot = Client(
-        "my_downloader_bot",
-        api_id=API_ID,
-        api_hash=API_HASH,
-        bot_token=BOT_TOKEN
-    )
-
-    @bot.on_message(filters.command("start"))
-    async def start_cmd(client, message):
-        await message.reply("✅ ربات فعال است!\nلینک یا فایل خود را ارسال کنید.")
-
-    bot.start()
-    idle()
-    bot.stop()
+def start_and_watch_bot():
+    """
+    این تابع یک لوپ نامحدود اجرا می‌کنه که:
+    - bot_runner.py رو با همان پایتون فعلی اجرا می‌کنه
+    - خروجی stdout/stderr بات رو خوانده و چاپ می‌کنه (قابل دیدن در لاگ Render)
+    - اگر بات کرش کرد، بعد از 5 ثانیه مجدداً ریستارت می‌کنه
+    """
+    python = sys.executable  # اطمینان از استفاده از همان مفسر و virtualenv
+    env = os.environ.copy()
+    while True:
+        try:
+            proc = subprocess.Popen(
+                [python, BOT_SCRIPT],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                env=env
+            )
+            print(f"[SUPERVISOR] bot process started (pid={proc.pid})")
+            # stream کردن لاگ بات به لاگ اصلی
+            if proc.stdout:
+                for raw in iter(proc.stdout.readline, b''):
+                    if not raw:
+                        break
+                    try:
+                        line = raw.decode(errors='replace').rstrip()
+                    except:
+                        line = str(raw)
+                    print(f"[BOT] {line}")
+            ret = proc.wait()
+            print(f"[SUPERVISOR] bot exited with code {ret}. Restarting in 5s...")
+        except Exception as e:
+            print(f"[SUPERVISOR] exception while starting bot: {e}")
+        time.sleep(5)
 
 if __name__ == "__main__":
-    # اجرای بات در ترد جدا
-    threading.Thread(target=run_bot, daemon=True).start()
+    # run supervisor thread (daemon so it won't block shutdown)
+    t = threading.Thread(target=start_and_watch_bot, daemon=True)
+    t.start()
 
-    # اجرای Flask روی پورت Render
-    import os
+    # Run Flask (Render expects a web port)
     port = int(os.environ.get("PORT", 10000))
+    # Optional: set host to 0.0.0.0 to be reachable
     app.run(host="0.0.0.0", port=port)
+    
