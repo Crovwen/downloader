@@ -1,5 +1,6 @@
-from flask import Flask
+import asyncio
 import threading
+from flask import Flask
 from pyrogram import Client, filters
 from pyrogram.types import Message
 import re
@@ -43,6 +44,8 @@ def home():
     return "Bot is running!", 200
 
 def run_bot():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     app_bot.run()
 
 if __name__ == "__main__":
