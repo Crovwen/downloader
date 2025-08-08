@@ -1,7 +1,4 @@
 python-telegram-bot==20.7
 aiohttp==3.8.6
-yt-dlp==2024.06.10
+yt-dlp==2024.6.10
 requests
-async-timeout==4.0.2
-beautifulsoup4==4.12.2
-Flask==2.3.3
