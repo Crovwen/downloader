@@ -4,3 +4,4 @@ tgcrypto
 yt-dlp
 requests
 aiohttp==3.9.5
+Flask
