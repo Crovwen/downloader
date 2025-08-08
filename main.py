@@ -1,6 +1,6 @@
 import threading
 from flask import Flask
-from pyrogram import Client, filters
+from pyrogram import Client, filters, idle
 
 # ======== تنظیمات Pyrogram ========
 API_ID = 20292726
@@ -14,21 +14,23 @@ def home():
     return "Bot is running!"
 
 def run_bot():
-    app_bot = Client(
+    bot = Client(
         "downloader_bot",
         api_id=API_ID,
         api_hash=API_HASH,
         bot_token=BOT_TOKEN
     )
 
-    @app_bot.on_message(filters.command("start"))
+    @bot.on_message(filters.command("start"))
     async def start_cmd(client, message):
         await message.reply("سلام! لینک رو بفرست تا دانلود کنم.")
 
-    app_bot.run()
+    bot.start()  # شروع بات
+    idle()       # نگه داشتن بات
+    bot.stop()   # توقف بات وقتی idle تموم شد
 
 if __name__ == "__main__":
-    # اجرای بات توی ترد جدا
+    # اجرای بات در ترد جدا
     threading.Thread(target=run_bot).start()
-    # اجرای Flask روی Render
+    # اجرای Flask برای Render
     app.run(host="0.0.0.0", port=10000)
