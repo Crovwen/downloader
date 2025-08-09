@@ -50,7 +50,8 @@ async def handle_link(client, message, url):
         await client.send_document(message.chat.id, file_path)
         try:
             os.remove(file_path)
-        except:
-            pass
+        except Exception as e:
+            print(f"Error removing file: {e}")
     else:
+        print(f"Download failed! URL: {url}, file_path: {file_path}")
         await message.reply("❌ متأسفانه نتونستم فایل رو دانلود کنم یا فرمتش پشتیبانی نمیشه.")
