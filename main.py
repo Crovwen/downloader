@@ -1,3 +1,12 @@
+from instagrapi import Client
+
+cl = Client()
+cl.load_settings("cookie.json")  # فایل کوکی کنار main.py
+
+# تست اتصال
+me = cl.account_info()
+print("ورود موفق ✅", me.username)
+
 import os
 from threading import Thread
 from flask import Flask
@@ -48,14 +57,3 @@ def run_bot():
 if __name__ == "__main__":
     Thread(target=run_flask).start()
     run_bot()
-
-from instagrapi import Client
-
-cl = Client()
-
-# لود کوکی از فایل
-cl.load_settings("cookie.json")
-
-# حالا مثلا تست بگیری ببینی وصل شد
-me = cl.account_info()
-print("ورود موفق ✅", me.username)
