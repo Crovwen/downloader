@@ -1,18 +1,24 @@
 import requests
+import tempfile
+import os
+import asyncio
 
-def download_direct_link(url: str, save_path: str):
-    """
-    دانلود هر لینکی که مستقیم به فایل اشاره می‌کند.
-    """
+async def download_direct_link(url):
     try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
+        temp_dir = tempfile.mkdtemp()
+        local_filename = os.path.join(temp_dir, url.split("/")[-1])
 
-        with open(save_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: _download(url, local_filename))
 
-        return f"Downloaded successfully to {save_path}"
-    except Exception as e:
-        return f"Error downloading from direct link: {e}"
-      
+        return local_filename if os.path.exists(local_filename) else None
+    except:
+        return None
+
+def _download(url, path):
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
