@@ -2,6 +2,7 @@
 pyrogram
 tgcrypto
 flask
+instagrapi
 
 # --- Downloaders ---
 yt-dlp
