@@ -1,24 +1,12 @@
-import tempfile
-import yt_dlp
-import asyncio
+# services/instagram.py
 import os
+from yt_dlp import YoutubeDL
 
 async def download_instagram(url):
-    temp_dir = tempfile.mkdtemp()
-    output_path = os.path.join(temp_dir, "%(title)s.%(ext)s")
-
     ydl_opts = {
-        "outtmpl": output_path,
-        "format": "best",
-        "extract_flat": False,
-        "quiet": True
+        'outtmpl': 'downloads/%(title)s.%(ext)s',
+        'cookiefile': 'cookie.json'
     }
-
-    try:
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, lambda: yt_dlp.YoutubeDL(ydl_opts).download([url]))
-
-        for file in os.listdir(temp_dir):
-            return os.path.join(temp_dir, file)
-    except:
-        return None
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        return ydl.prepare_filename(info)
