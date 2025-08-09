@@ -1,27 +1,22 @@
+import tempfile
 import yt_dlp
 import asyncio
 import os
-import tempfile
 
-async def download_soundcloud(url: str) -> str | None:
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, sync_download, url)
-
-def sync_download(url: str) -> str | None:
+async def download_soundcloud(url):
     temp_dir = tempfile.mkdtemp()
+    output_path = os.path.join(temp_dir, "%(title)s.%(ext)s")
+
     ydl_opts = {
-        'outtmpl': os.path.join(temp_dir, '%(title)s.%(ext)s'),
-        'quiet': True,
-        'no_warnings': True,
-        'ignoreerrors': True,
-        'format': 'bestaudio/best',
+        "outtmpl": output_path,
+        "format": "bestaudio/best"
     }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        try:
-            info = ydl.extract_info(url, download=True)
-            if not info:
-                return None
-            filename = ydl.prepare_filename(info)
-            return filename if os.path.exists(filename) else None
-        except Exception:
-            return None
+
+    try:
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: yt_dlp.YoutubeDL(ydl_opts).download([url]))
+
+        for file in os.listdir(temp_dir):
+            return os.path.join(temp_dir, file)
+    except:
+        return None
