@@ -3,7 +3,7 @@ import yt_dlp
 import asyncio
 import os
 
-async def download_pinterest(url):
+async def download_tiktok(url):
     temp_dir = tempfile.mkdtemp()
     output_path = os.path.join(temp_dir, "%(title)s.%(ext)s")
 
