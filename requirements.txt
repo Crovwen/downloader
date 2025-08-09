@@ -2,3 +2,8 @@ pyrogram==2.0.106
 TgCrypto
 Flask
 yt-dlp
+requests
+pytube
+instaloader
+spotipy
+pillow
