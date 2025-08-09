@@ -1,0 +1,16 @@
+[{
+	"Host raw": "https://.instagram.com/",
+	"Name raw": "csrftoken",
+	"Path raw": "/",
+	"Content raw": "Q0GiOySD66kCzRxnfdAWc378RQJpe3Ek",
+	"Expires": "13-09-2026 19:35:25",
+	"Expires raw": "1789315525",
+	"Send for": "Encrypted connections only",
+	"Send for raw": "true",
+	"HTTP only raw": "false",
+	"SameSite raw": "no_restriction",
+	"This domain only": "Valid for subdomains",
+	"This domain only raw": "false",
+	"Store raw": "null",
+	"First Party Domain": ""
+}]
