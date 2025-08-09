@@ -1,6 +1,7 @@
 # --- Core ---
 pyrogram
 tgcrypto
+flask
 
 # --- Downloaders ---
 yt-dlp
