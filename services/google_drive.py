@@ -1,33 +1,28 @@
-import asyncio
-import os
-import tempfile
 import requests
+import tempfile
+import os
 
-async def download_google_drive(url: str) -> str | None:
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, lambda: download(url))
+async def download_google_drive(url):
+    file_id = None
+    if "id=" in url:
+        file_id = url.split("id=")[-1]
+    elif "/d/" in url:
+        file_id = url.split("/d/")[1].split("/")[0]
 
-def download(url: str) -> str | None:
-    try:
-        file_id = extract_file_id(url)
-        if not file_id:
-            return None
-        download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
-        response = requests.get(download_url, stream=True)
-        if 'text/html' in response.headers.get('content-type', ''):
-            return None
-        filename = tempfile.mktemp()
-        with open(filename, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=1024):
-                f.write(chunk)
-        return filename
-    except Exception:
+    if not file_id:
         return None
 
-def extract_file_id(url: str) -> str | None:
-    import re
-    match = re.search(r'/d/([a-zA-Z0-9_-]+)', url)
-    if match:
-        return match.group(1)
-    match = re.search(r'id=([a-zA-Z0-9_-]+)', url)
-    return match.group(1) if match else None
+    download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+
+    temp_dir = tempfile.mkdtemp()
+    local_path = os.path.join(temp_dir, f"{file_id}.file")
+
+    try:
+        with requests.get(download_url, stream=True) as r:
+            r.raise_for_status()
+            with open(local_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        return local_path
+    except:
+        return None
